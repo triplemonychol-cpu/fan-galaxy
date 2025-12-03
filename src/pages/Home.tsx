@@ -4,8 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, MessageSquare, TrendingUp } from "lucide-react";
+import { Users, MessageSquare, TrendingUp, Flame } from "lucide-react";
 import { motion } from "framer-motion";
+import { TrendingPosts } from "@/components/TrendingPosts";
 
 export default function Home() {
   const { data: categories, isLoading } = useQuery({
@@ -123,6 +124,47 @@ export default function Home() {
                 </CardContent>
               </Card>
             </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Trending Section */}
+      <section className="py-12 px-4 bg-muted/30">
+        <div className="container max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="md:col-span-2">
+              <div className="flex items-center gap-2 mb-6">
+                <Flame className="h-6 w-6 text-orange-500" />
+                <h2 className="text-2xl font-bold">Trending Discussions</h2>
+              </div>
+              <Card>
+                <CardContent className="pt-6">
+                  <TrendingPosts />
+                </CardContent>
+              </Card>
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-6">
+                <TrendingUp className="h-6 w-6 text-primary" />
+                <h2 className="text-2xl font-bold">Quick Stats</h2>
+              </div>
+              <Card>
+                <CardContent className="pt-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Active Communities</span>
+                    <span className="font-bold text-lg">{stats?.groups || 0}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Total Discussions</span>
+                    <span className="font-bold text-lg">{stats?.posts || 0}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Community Members</span>
+                    <span className="font-bold text-lg">{stats?.members || 0}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </section>
