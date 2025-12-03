@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { Image, X } from "lucide-react";
+import { PollCreator } from "@/components/PollCreator";
 
 export default function CreatePost() {
   const { groupSlug } = useParams();
@@ -21,6 +22,7 @@ export default function CreatePost() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [pollData, setPollData] = useState<{ question: string; options: string[] } | null>(null);
 
   const { data: group } = useQuery({
     queryKey: ["group", groupSlug],
@@ -88,6 +90,33 @@ export default function CreatePost() {
         .single();
 
       if (error) throw error;
+
+      // Create poll if provided
+      if (pollData && data) {
+        const { data: poll, error: pollError } = await supabase
+          .from("polls")
+          .insert({
+            post_id: data.id,
+            question: pollData.question,
+          })
+          .select()
+          .single();
+
+        if (pollError) throw pollError;
+
+        // Create poll options
+        const optionsToInsert = pollData.options.map(option => ({
+          poll_id: poll.id,
+          option_text: option,
+        }));
+
+        const { error: optionsError } = await supabase
+          .from("poll_options")
+          .insert(optionsToInsert);
+
+        if (optionsError) throw optionsError;
+      }
+
       return data;
     },
     onSuccess: (data) => {
@@ -149,6 +178,9 @@ export default function CreatePost() {
                 maxLength={5000}
               />
             </div>
+
+            {/* Poll Creator */}
+            <PollCreator onPollChange={setPollData} />
 
             <div className="space-y-2">
               <Label htmlFor="image">Image (optional)</Label>

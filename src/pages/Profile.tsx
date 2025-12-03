@@ -5,9 +5,11 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/lib/auth";
-import { Users, MessageSquare, Calendar } from "lucide-react";
+import { Users, MessageSquare, Calendar, Award, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
+import { UserLevel } from "@/components/UserLevel";
+import { BadgeDisplay } from "@/components/BadgeDisplay";
 
 export default function Profile() {
   const { user } = useAuth();
@@ -89,10 +91,24 @@ export default function Profile() {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <CardTitle className="text-3xl mb-2">
-                {profile?.display_name || profile?.username}
-              </CardTitle>
-              <p className="text-muted-foreground mb-4">@{profile?.username}</p>
+              <div className="flex items-center gap-3 mb-2">
+                <CardTitle className="text-3xl">
+                  {profile?.display_name || profile?.username}
+                </CardTitle>
+                <UserLevel 
+                  level={profile?.level || 1} 
+                  points={profile?.points || 0} 
+                  size="md"
+                />
+              </div>
+              <p className="text-muted-foreground mb-2">@{profile?.username}</p>
+              <div className="flex items-center gap-4 mb-4">
+                <div className="flex items-center gap-1 text-sm">
+                  <Zap className="h-4 w-4 text-yellow-500" />
+                  <span className="font-medium">{profile?.points || 0}</span>
+                  <span className="text-muted-foreground">points</span>
+                </div>
+              </div>
               {profile?.bio && (
                 <p className="text-sm mb-4">{profile.bio}</p>
               )}
@@ -106,6 +122,21 @@ export default function Profile() {
           </div>
         </CardHeader>
       </Card>
+
+      {/* Badges Section */}
+      {user && (
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Award className="h-5 w-5 text-yellow-500" />
+              Badges & Achievements
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <BadgeDisplay userId={user.id} showAll />
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid md:grid-cols-2 gap-6 mb-8">
         <Card>
