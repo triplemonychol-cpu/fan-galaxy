@@ -8,13 +8,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { MessageSquare, ArrowLeft } from "lucide-react";
+import { MessageSquare, ArrowLeft, Flag } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
 import { ReactionPicker } from "@/components/ReactionPicker";
 import { PollDisplay } from "@/components/PollDisplay";
+import { ReportDialog } from "@/components/ReportDialog";
 
 export default function Post() {
   const { postId } = useParams();
@@ -149,12 +150,15 @@ export default function Post() {
             {/* Poll Display */}
             <PollDisplay postId={post.id} />
 
-            <div className="flex items-center gap-6 text-muted-foreground mt-6">
-              <ReactionPicker postId={post.id} />
-              <div className="flex items-center gap-2">
-                <MessageSquare className="h-5 w-5" />
-                <span>{post.comment_count} comments</span>
+            <div className="flex items-center justify-between mt-6">
+              <div className="flex items-center gap-6 text-muted-foreground">
+                <ReactionPicker postId={post.id} />
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5" />
+                  <span>{post.comment_count} comments</span>
+                </div>
               </div>
+              <ReportDialog postId={post.id} />
             </div>
           </CardContent>
         </Card>
@@ -224,8 +228,9 @@ export default function Post() {
                         <p className="whitespace-pre-wrap text-sm">
                             {comment.content}
                           </p>
-                          <div className="mt-2">
+                          <div className="mt-2 flex items-center justify-between">
                             <ReactionPicker commentId={comment.id} size="sm" />
+                            <ReportDialog commentId={comment.id} />
                           </div>
                         </div>
                       </div>

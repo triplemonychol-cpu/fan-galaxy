@@ -13,6 +13,7 @@ import Group from "./pages/Group";
 import CreatePost from "./pages/CreatePost";
 import Post from "./pages/Post";
 import Profile from "./pages/Profile";
+import CommunityGuidelines from "./pages/CommunityGuidelines";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
                   <Route path="/group/:groupSlug/create-post" element={<CreatePost />} />
                   <Route path="/post/:postId" element={<Post />} />
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/guidelines" element={<CommunityGuidelines />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
