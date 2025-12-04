@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Search, Bell, User, Moon, Sun, LogOut } from "lucide-react";
+import { Search, Bell, User, Moon, Sun, LogOut, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -99,6 +99,12 @@ export function Navbar() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem asChild>
                     <Link to="/profile">My Profile</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/guidelines">
+                      <Shield className="mr-2 h-4 w-4" />
+                      Community Guidelines
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={signOut}>
