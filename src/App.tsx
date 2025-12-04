@@ -14,6 +14,7 @@ import CreatePost from "./pages/CreatePost";
 import Post from "./pages/Post";
 import Profile from "./pages/Profile";
 import CommunityGuidelines from "./pages/CommunityGuidelines";
+import Updates from "./pages/Updates";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
                   <Route path="/post/:postId" element={<Post />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/guidelines" element={<CommunityGuidelines />} />
+                  <Route path="/updates" element={<Updates />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>

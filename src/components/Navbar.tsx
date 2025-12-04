@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Search, Bell, User, Moon, Sun, LogOut, Shield } from "lucide-react";
+import { Search, Bell, User, Moon, Sun, LogOut, Shield, Newspaper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -36,6 +36,14 @@ export function Navbar() {
             <div className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">
               FanHub
             </div>
+          </Link>
+
+          <Link
+            to="/updates"
+            className="hidden md:flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Newspaper className="h-4 w-4" />
+            Updates
           </Link>
 
           <form onSubmit={handleSearch} className="hidden md:flex items-center">
