@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Users, MessageSquare, TrendingUp, Flame } from "lucide-react";
 import { motion } from "framer-motion";
 import { TrendingPosts } from "@/components/TrendingPosts";
+import heroBackground from "@/assets/hero-background.jpg";
 
 export default function Home() {
   const { data: categories, isLoading } = useQuery({
@@ -41,23 +42,46 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-20 px-4 bg-gradient-hero overflow-hidden">
-        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+      <section className="relative py-24 md:py-32 px-4 overflow-hidden">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${heroBackground})` }}
+        />
+        {/* Dark Overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80" />
+        
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="container max-w-4xl mx-auto text-center relative z-10"
         >
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+          <motion.h1 
+            className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-lg"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
             Connect with fans who share your passion
-          </h1>
-          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+          </motion.h1>
+          <motion.p 
+            className="text-xl md:text-2xl text-white/90 mb-10 max-w-2xl mx-auto drop-shadow-md"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
             Join communities dedicated to anime, movies, games, and more. Share your thoughts, make friends, and be part of something bigger.
-          </p>
-          <Button size="lg" className="bg-white text-primary hover:bg-white/90 shadow-strong" asChild>
-            <Link to="#categories">Explore Communities</Link>
-          </Button>
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+          >
+            <Button size="lg" className="bg-white text-primary hover:bg-white/90 shadow-strong text-lg px-8 py-6" asChild>
+              <Link to="#categories">Explore Communities</Link>
+            </Button>
+          </motion.div>
         </motion.div>
       </section>
 
