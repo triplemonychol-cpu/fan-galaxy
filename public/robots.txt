@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://your-domain.com/sitemap.xml
+Sitemap: https://wpczgwxsriezaubncuom.lovable.app/sitemap.xml
