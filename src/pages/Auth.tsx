@@ -51,6 +51,13 @@ export default function Auth() {
       return;
     }
 
+    // Username validation: 3-30 characters, alphanumeric and underscores only
+    const usernamePattern = /^[a-zA-Z0-9_]{3,30}$/;
+    if (!usernamePattern.test(username)) {
+      toast.error("Username must be 3-30 characters, alphanumeric and underscores only");
+      return;
+    }
+
     if (password.length < 6) {
       toast.error("Password must be at least 6 characters");
       return;
