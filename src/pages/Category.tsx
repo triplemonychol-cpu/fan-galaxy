@@ -31,7 +31,7 @@ export default function Category() {
         .from("groups")
         .select(`
           *,
-          profiles:created_by(username, avatar_url)
+          public_profiles:created_by(username, avatar_url)
         `)
         .eq("category_id", category.id)
         .order("member_count", { ascending: false });
