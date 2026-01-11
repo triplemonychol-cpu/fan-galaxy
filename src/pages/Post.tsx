@@ -30,7 +30,7 @@ export default function Post() {
         .from("posts")
         .select(`
           *,
-          profiles:author_id(username, avatar_url),
+          public_profiles:author_id(username, avatar_url),
           groups(name, slug)
         `)
         .eq("id", postId)
@@ -47,7 +47,7 @@ export default function Post() {
         .from("comments")
         .select(`
           *,
-          profiles:author_id(username, avatar_url)
+          public_profiles:author_id(username, avatar_url)
         `)
         .eq("post_id", postId)
         .is("parent_id", null)
@@ -120,13 +120,13 @@ export default function Post() {
           <CardHeader>
             <div className="flex items-start gap-3 mb-4">
               <Avatar>
-                <AvatarImage src={post.profiles?.avatar_url} />
+                <AvatarImage src={post.public_profiles?.avatar_url} />
                 <AvatarFallback>
-                  {post.profiles?.username?.[0]?.toUpperCase()}
+                  {post.public_profiles?.username?.[0]?.toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <div className="font-semibold">{post.profiles?.username}</div>
+                <div className="font-semibold">{post.public_profiles?.username}</div>
                 <div className="text-sm text-muted-foreground">
                   {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
                 </div>
@@ -209,15 +209,15 @@ export default function Post() {
                     <CardContent className="pt-6">
                       <div className="flex gap-3">
                         <Avatar>
-                          <AvatarImage src={comment.profiles?.avatar_url} />
+                          <AvatarImage src={comment.public_profiles?.avatar_url} />
                           <AvatarFallback>
-                            {comment.profiles?.username?.[0]?.toUpperCase()}
+                            {comment.public_profiles?.username?.[0]?.toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
                             <span className="font-semibold">
-                              {comment.profiles?.username}
+                              {comment.public_profiles?.username}
                             </span>
                             <span className="text-sm text-muted-foreground">
                               {formatDistanceToNow(new Date(comment.created_at), {

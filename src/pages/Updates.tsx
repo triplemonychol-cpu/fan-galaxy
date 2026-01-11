@@ -44,7 +44,7 @@ export default function Updates() {
           like_count,
           comment_count,
           created_at,
-          author:profiles!posts_author_id_fkey(username, display_name, avatar_url),
+          author:public_profiles!posts_author_id_fkey(username, display_name, avatar_url),
           group:groups!posts_group_id_fkey(
             name,
             slug,

@@ -25,7 +25,7 @@ export default function Group() {
         .select(`
           *,
           categories(name, icon, color),
-          profiles:created_by(username, avatar_url)
+          public_profiles:created_by(username, avatar_url)
         `)
         .eq("slug", slug)
         .single();
@@ -58,7 +58,7 @@ export default function Group() {
         .from("posts")
         .select(`
           *,
-          profiles:author_id(username, avatar_url)
+          public_profiles:author_id(username, avatar_url)
         `)
         .eq("group_id", group.id)
         .order("created_at", { ascending: false });
@@ -238,14 +238,14 @@ export default function Group() {
                     <CardHeader>
                       <div className="flex items-start gap-3">
                         <Avatar>
-                          <AvatarImage src={post.profiles?.avatar_url} />
+                          <AvatarImage src={post.public_profiles?.avatar_url} />
                           <AvatarFallback>
-                            {post.profiles?.username?.[0]?.toUpperCase()}
+                            {post.public_profiles?.username?.[0]?.toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-semibold">{post.profiles?.username}</span>
+                            <span className="font-semibold">{post.public_profiles?.username}</span>
                             <span className="text-sm text-muted-foreground">
                               {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
                             </span>
