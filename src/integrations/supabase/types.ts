@@ -656,6 +656,42 @@ export type Database = {
       }
     }
     Views: {
+      moderation_reports: {
+        Row: {
+          comment_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          post_id: string | null
+          reason: string | null
+          reported_user_id: string | null
+          resolved_at: string | null
+          status: string | null
+        }
+        Insert: {
+          comment_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          post_id?: string | null
+          reason?: string | null
+          reported_user_id?: string | null
+          resolved_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          comment_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          post_id?: string | null
+          reason?: string | null
+          reported_user_id?: string | null
+          resolved_at?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
       public_profiles: {
         Row: {
           avatar_url: string | null
