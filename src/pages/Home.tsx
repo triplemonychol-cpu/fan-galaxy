@@ -78,8 +78,14 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
           >
-            <Button size="lg" className="bg-white text-primary hover:bg-white/90 shadow-strong text-lg px-8 py-6" asChild>
-              <Link to="#categories">Explore Communities</Link>
+            <Button 
+              size="lg" 
+              className="bg-white text-primary hover:bg-white/90 shadow-strong text-lg px-8 py-6"
+              onClick={() => {
+                document.getElementById('categories')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              Explore Communities
             </Button>
           </motion.div>
         </motion.div>
