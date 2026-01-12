@@ -16,6 +16,9 @@ import { motion } from "framer-motion";
 import { ReactionPicker } from "@/components/ReactionPicker";
 import { PollDisplay } from "@/components/PollDisplay";
 import { ReportDialog } from "@/components/ReportDialog";
+import { CharacterCount } from "@/components/CharacterCount";
+
+const COMMENT_MAX_LENGTH = 2000;
 
 export default function Post() {
   const { postId } = useParams();
@@ -180,8 +183,9 @@ export default function Post() {
                       value={commentContent}
                       onChange={(e) => setCommentContent(e.target.value)}
                       rows={3}
-                      maxLength={1000}
+                      maxLength={COMMENT_MAX_LENGTH}
                     />
+                    <CharacterCount current={commentContent.length} max={COMMENT_MAX_LENGTH} />
                     <div className="mt-3 flex justify-end">
                       <Button
                         onClick={() => createCommentMutation.mutate()}

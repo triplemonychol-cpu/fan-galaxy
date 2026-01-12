@@ -11,6 +11,10 @@ import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { Image, X } from "lucide-react";
 import { PollCreator } from "@/components/PollCreator";
+import { CharacterCount } from "@/components/CharacterCount";
+
+const TITLE_MAX_LENGTH = 200;
+const CONTENT_MAX_LENGTH = 10000;
 
 export default function CreatePost() {
   const { groupSlug } = useParams();
@@ -162,8 +166,9 @@ export default function CreatePost() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
-                maxLength={200}
+                maxLength={TITLE_MAX_LENGTH}
               />
+              <CharacterCount current={title.length} max={TITLE_MAX_LENGTH} />
             </div>
 
             <div className="space-y-2">
@@ -175,8 +180,9 @@ export default function CreatePost() {
                 onChange={(e) => setContent(e.target.value)}
                 required
                 rows={8}
-                maxLength={5000}
+                maxLength={CONTENT_MAX_LENGTH}
               />
+              <CharacterCount current={content.length} max={CONTENT_MAX_LENGTH} />
             </div>
 
             {/* Poll Creator */}
