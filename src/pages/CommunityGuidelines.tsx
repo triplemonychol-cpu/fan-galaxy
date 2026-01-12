@@ -1,5 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, Heart, MessageCircle, AlertTriangle, Ban, Flag, Scale } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Shield, Heart, MessageCircle, AlertTriangle, Ban, Flag, Scale, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const guidelines = [
   {
@@ -77,6 +79,14 @@ const guidelines = [
 export default function CommunityGuidelines() {
   return (
     <div className="container max-w-4xl py-8 px-4">
+      <div className="mb-6">
+        <Button variant="ghost" asChild>
+          <Link to="/" className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Home
+          </Link>
+        </Button>
+      </div>
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-2">Community Guidelines</h1>
         <p className="text-muted-foreground">
