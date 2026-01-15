@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { ArrowLeft, Users } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ImageUpload } from "@/components/ImageUpload";
 
 export default function CreateGroup() {
   const navigate = useNavigate();
@@ -22,7 +23,8 @@ export default function CreateGroup() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState(searchParams.get("category") || "");
-  const [iconEmoji, setIconEmoji] = useState("👥");
+  const [iconUrl, setIconUrl] = useState<string | null>(null);
+  const [bannerUrl, setBannerUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { data: categories, isLoading: categoriesLoading } = useQuery({
@@ -54,7 +56,8 @@ export default function CreateGroup() {
           description,
           category_id: categoryId,
           created_by: user.id,
-          icon_url: iconEmoji,
+          icon_url: iconUrl,
+          banner_url: bannerUrl,
         })
         .select()
         .single();
@@ -185,15 +188,31 @@ export default function CreateGroup() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="icon">Community Icon (Emoji)</Label>
-              <Input
-                id="icon"
-                value={iconEmoji}
-                onChange={(e) => setIconEmoji(e.target.value)}
-                placeholder="👥"
-                maxLength={2}
-                className="w-24 text-2xl text-center"
+              <Label>Community Icon</Label>
+              <ImageUpload
+                currentImageUrl={iconUrl}
+                onUploadComplete={setIconUrl}
+                folder="group-icons"
+                userId={user.id}
+                variant="icon"
               />
+              <p className="text-sm text-muted-foreground">
+                Upload an image for your community icon
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Community Banner (Optional)</Label>
+              <ImageUpload
+                currentImageUrl={bannerUrl}
+                onUploadComplete={setBannerUrl}
+                folder="group-banners"
+                userId={user.id}
+                variant="banner"
+              />
+              <p className="text-sm text-muted-foreground">
+                Upload a banner image for your community header
+              </p>
             </div>
 
             <Button 

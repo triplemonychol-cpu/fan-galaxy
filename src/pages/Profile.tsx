@@ -1,7 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/lib/auth";
@@ -11,9 +10,12 @@ import { format } from "date-fns";
 import { UserLevel } from "@/components/UserLevel";
 import { BadgeDisplay } from "@/components/BadgeDisplay";
 import { SEO } from "@/components/SEO";
+import { ImageUpload } from "@/components/ImageUpload";
+import { toast } from "sonner";
 
 export default function Profile() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ["profile", user?.id],
@@ -65,6 +67,24 @@ export default function Profile() {
     enabled: !!user,
   });
 
+  const updateAvatarMutation = useMutation({
+    mutationFn: async (avatarUrl: string) => {
+      if (!user) throw new Error("Not authenticated");
+      const { error } = await supabase
+        .from("profiles")
+        .update({ avatar_url: avatarUrl })
+        .eq("id", user.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
+      toast.success("Profile picture updated!");
+    },
+    onError: () => {
+      toast.error("Failed to update profile picture");
+    },
+  });
+
   if (!user) {
     return (
       <div className="container py-16 text-center">
@@ -92,11 +112,14 @@ export default function Profile() {
         <Card className="mb-8">
         <CardHeader>
           <div className="flex items-start gap-6">
-            <Avatar className="h-24 w-24">
-              <AvatarFallback className="text-3xl">
-                {profile?.username?.[0]?.toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            <ImageUpload
+              currentImageUrl={profile?.avatar_url}
+              onUploadComplete={(url) => updateAvatarMutation.mutate(url)}
+              folder="avatars"
+              userId={user.id}
+              variant="avatar"
+              fallbackText={profile?.username || "?"}
+            />
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
                 <CardTitle className="text-3xl">
