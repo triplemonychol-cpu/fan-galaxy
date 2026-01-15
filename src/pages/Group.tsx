@@ -138,20 +138,28 @@ export default function Group() {
     <div className="min-h-screen">
       {/* Group Header */}
       <div
-        className="py-16 px-4 relative"
+        className="py-16 px-4 relative bg-cover bg-center"
         style={{
-          background: group.banner_url || `linear-gradient(135deg, ${group.categories?.color} 0%, ${group.categories?.color}cc 100%)`,
+          backgroundImage: group.banner_url ? `url(${group.banner_url})` : undefined,
+          backgroundColor: !group.banner_url ? group.categories?.color : undefined,
         }}
       >
+        {group.banner_url && (
+          <div className="absolute inset-0 bg-black/40" />
+        )}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="container max-w-5xl mx-auto text-white"
+          className="container max-w-5xl mx-auto text-white relative z-10"
         >
           <div className="flex items-center gap-4 mb-4">
             {group.icon_url && (
-              <div className="w-20 h-20 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-4xl">
-                {group.icon_url}
+              <div className="w-20 h-20 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center overflow-hidden">
+                {group.icon_url.startsWith('http') ? (
+                  <img src={group.icon_url} alt={group.name} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-4xl">{group.icon_url}</span>
+                )}
               </div>
             )}
             <div>
