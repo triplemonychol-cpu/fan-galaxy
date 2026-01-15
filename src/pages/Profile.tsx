@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { UserLevel } from "@/components/UserLevel";
 import { BadgeDisplay } from "@/components/BadgeDisplay";
+import { SEO } from "@/components/SEO";
 
 export default function Profile() {
   const { user } = useAuth();
@@ -81,8 +82,14 @@ export default function Profile() {
   }
 
   return (
-    <div className="container py-8 px-4 max-w-4xl mx-auto">
-      <Card className="mb-8">
+    <>
+      <SEO 
+        title={profile?.display_name || profile?.username || "Your Profile"}
+        description={`View ${profile?.display_name || profile?.username || "user"}'s profile on FanHub. See their communities, posts, badges, and achievements.`}
+        keywords="fan profile, user profile, community member, fan achievements, user badges"
+      />
+      <div className="container py-8 px-4 max-w-4xl mx-auto">
+        <Card className="mb-8">
         <CardHeader>
           <div className="flex items-start gap-6">
             <Avatar className="h-24 w-24">
@@ -223,5 +230,6 @@ export default function Profile() {
         </CardContent>
       </Card>
     </div>
+    </>
   );
 }
