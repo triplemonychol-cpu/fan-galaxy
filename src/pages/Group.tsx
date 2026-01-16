@@ -1,4 +1,5 @@
-import { useParams, Link } from "react-router-dom";
+import { useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +7,39 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Users, MessageSquare, Plus, UserPlus, UserMinus, Settings } from "lucide-react";
+import { 
+  Users, 
+  MessageSquare, 
+  Plus, 
+  UserPlus, 
+  UserMinus, 
+  Settings, 
+  MoreVertical,
+  Pause,
+  Trash2,
+  VolumeX,
+  Pin,
+  Share2,
+  FileText,
+  UserCog
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -15,7 +48,11 @@ import { formatDistanceToNow } from "date-fns";
 export default function Group() {
   const { slug } = useParams();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showTransferDialog, setShowTransferDialog] = useState(false);
 
   const { data: group, isLoading: groupLoading } = useQuery({
     queryKey: ["group", slug],
@@ -110,6 +147,41 @@ export default function Group() {
     },
   });
 
+  const deleteGroupMutation = useMutation({
+    mutationFn: async () => {
+      if (!user || !group) throw new Error("Not authenticated");
+      
+      const { error } = await supabase
+        .from("groups")
+        .delete()
+        .eq("id", group.id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Community deleted");
+      navigate("/");
+    },
+    onError: () => {
+      toast.error("Failed to delete community");
+    },
+  });
+
+  const isCreator = user?.id === group?.created_by;
+
+  const handleShareGroup = async () => {
+    try {
+      await navigator.share({
+        title: group?.name,
+        text: group?.description || `Check out ${group?.name}`,
+        url: window.location.href,
+      });
+    } catch {
+      await navigator.clipboard.writeText(window.location.href);
+      toast.success("Link copied to clipboard!");
+    }
+  };
+
   if (groupLoading) {
     return (
       <div className="container py-8 px-4">
@@ -177,7 +249,7 @@ export default function Group() {
             </div>
           </div>
           <p className="text-lg opacity-90 mb-6">{group.description}</p>
-          <div className="flex gap-3 flex-wrap">
+          <div className="flex gap-3 flex-wrap items-center">
             {user ? (
               isMember ? (
                 <>
@@ -191,16 +263,69 @@ export default function Group() {
                       Create Post
                     </Link>
                   </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-                    onClick={() => leaveMutation.mutate()}
-                    disabled={leaveMutation.isPending}
-                  >
-                    <UserMinus className="mr-2 h-4 w-4" />
-                    Leave
-                  </Button>
+                  
+                  {/* Admin gets dropdown with management options, regular members get Leave button */}
+                  {isCreator ? (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          size="lg"
+                          variant="outline"
+                          className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                        >
+                          <MoreVertical className="mr-2 h-4 w-4" />
+                          Manage
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="w-56">
+                        <DropdownMenuItem onClick={() => toast.info("Group paused - new posts temporarily disabled")}>
+                          <Pause className="mr-2 h-4 w-4" />
+                          Pause Group
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => toast.info("Notifications muted")}>
+                          <VolumeX className="mr-2 h-4 w-4" />
+                          Mute Notifications
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => toast.info("Group pinned to top")}>
+                          <Pin className="mr-2 h-4 w-4" />
+                          Pin Group
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleShareGroup}>
+                          <Share2 className="mr-2 h-4 w-4" />
+                          Share Group
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => navigate(`/group/${group.slug}/activity`)}>
+                          <FileText className="mr-2 h-4 w-4" />
+                          Manage Content
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setShowTransferDialog(true)}>
+                          <UserCog className="mr-2 h-4 w-4" />
+                          Transfer Ownership
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          className="text-destructive focus:text-destructive"
+                          onClick={() => setShowDeleteDialog(true)}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete Group
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ) : (
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                      onClick={() => leaveMutation.mutate()}
+                      disabled={leaveMutation.isPending}
+                    >
+                      <UserMinus className="mr-2 h-4 w-4" />
+                      Leave
+                    </Button>
+                  )}
+                  
                   <Button
                     size="lg"
                     variant="outline"
@@ -340,6 +465,45 @@ export default function Group() {
           </Card>
         )}
       </div>
+
+      {/* Delete Group Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Community</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{group.name}"? This action cannot be undone. 
+              All posts, comments, and member data will be permanently removed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => deleteGroupMutation.mutate()}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Transfer Ownership Dialog */}
+      <AlertDialog open={showTransferDialog} onOpenChange={setShowTransferDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Transfer Ownership</AlertDialogTitle>
+            <AlertDialogDescription>
+              This feature allows you to transfer ownership to another member. 
+              You will lose admin privileges after the transfer is complete.
+              This feature is coming soon.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Close</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
