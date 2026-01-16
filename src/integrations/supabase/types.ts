@@ -743,6 +743,30 @@ export type Database = {
         }
         Relationships: []
       }
+      reaction_counts: {
+        Row: {
+          comment_id: string | null
+          count: number | null
+          post_id: string | null
+          reaction_type: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reactions_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reactions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       add_user_points: {
