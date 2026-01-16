@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import {
   ArrowLeft,
   Users,
@@ -19,6 +20,8 @@ import {
   Globe,
   Eye,
   CheckCircle2,
+  EyeOff,
+  Lock,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
@@ -33,6 +36,9 @@ export default function GroupSettings() {
   const queryClient = useQueryClient();
   const [showCoverUpload, setShowCoverUpload] = useState(false);
   const [showIconUpload, setShowIconUpload] = useState(false);
+  const [showNotificationSettings, setShowNotificationSettings] = useState(false);
+  const [showGroupStatus, setShowGroupStatus] = useState(false);
+  const [notificationSetting, setNotificationSetting] = useState("all");
 
   const { data: group, isLoading } = useQuery({
     queryKey: ["group", slug],
@@ -126,33 +132,37 @@ export default function GroupSettings() {
     );
   }
 
+  const isPrivate = (group as any).is_private || false;
+  const isHidden = (group as any).is_hidden || false;
+
   const menuItems = [
     {
       icon: Users,
       label: "Members",
       value: group.member_count?.toString() || "0",
-      onClick: () => {},
+      onClick: () => navigate(`/group/${slug}/members`),
     },
     {
       icon: Bell,
       label: "Notifications",
-      value: "All posts",
-      onClick: () => {},
+      value: notificationSetting === "all" ? "All posts" : notificationSetting === "highlights" ? "Highlights" : "Off",
+      onClick: () => setShowNotificationSettings(true),
     },
     {
       icon: Calendar,
       label: "Events",
-      onClick: () => {},
+      value: "Coming soon",
+      onClick: () => toast.info("Events feature coming soon!"),
     },
     {
       icon: Image,
       label: "Photos",
-      onClick: () => {},
+      onClick: () => navigate(`/group/${slug}/photos`),
     },
     {
       icon: Clock,
       label: "History",
-      onClick: () => {},
+      onClick: () => navigate(`/group/${slug}/history`),
     },
     {
       icon: Settings,
@@ -163,7 +173,7 @@ export default function GroupSettings() {
     {
       icon: FileText,
       label: "Activity log",
-      onClick: () => {},
+      onClick: () => navigate(`/group/${slug}/activity`),
       showIf: isCreator,
     },
     {
@@ -181,7 +191,7 @@ export default function GroupSettings() {
     {
       icon: Shield,
       label: "Group status",
-      onClick: () => {},
+      onClick: () => setShowGroupStatus(true),
     },
   ];
 
@@ -215,24 +225,34 @@ export default function GroupSettings() {
               <CheckCircle2 className="h-5 w-5 text-primary" />
             </div>
 
-            {/* Public Group */}
+            {/* Public/Private Group */}
             <div className="flex items-start gap-3">
-              <Globe className="h-5 w-5 mt-0.5 text-muted-foreground" />
+              {isPrivate ? (
+                <Lock className="h-5 w-5 mt-0.5 text-muted-foreground" />
+              ) : (
+                <Globe className="h-5 w-5 mt-0.5 text-muted-foreground" />
+              )}
               <div>
-                <p className="font-medium">Public group</p>
+                <p className="font-medium">{isPrivate ? "Private group" : "Public group"}</p>
                 <p className="text-sm text-muted-foreground">
-                  Anyone can see who's in the group and what they post.
+                  {isPrivate
+                    ? "Only members can see who's in the group and what they post."
+                    : "Anyone can see who's in the group and what they post."}
                 </p>
               </div>
             </div>
 
-            {/* Visible */}
+            {/* Visible/Hidden */}
             <div className="flex items-start gap-3">
-              <Eye className="h-5 w-5 mt-0.5 text-muted-foreground" />
+              {isHidden ? (
+                <EyeOff className="h-5 w-5 mt-0.5 text-muted-foreground" />
+              ) : (
+                <Eye className="h-5 w-5 mt-0.5 text-muted-foreground" />
+              )}
               <div>
-                <p className="font-medium">Visible</p>
+                <p className="font-medium">{isHidden ? "Hidden" : "Visible"}</p>
                 <p className="text-sm text-muted-foreground">
-                  Anyone can find this group.
+                  {isHidden ? "Only members can find this group." : "Anyone can find this group."}
                 </p>
               </div>
             </div>
@@ -321,6 +341,97 @@ export default function GroupSettings() {
                     Cancel
                   </Button>
                 </div>
+              </motion.div>
+            </div>
+          )}
+
+          {/* Notification Settings Modal */}
+          {showNotificationSettings && (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="bg-background rounded-lg p-6 max-w-md w-full space-y-4"
+              >
+                <h3 className="text-lg font-bold">Notification Settings</h3>
+                <div className="space-y-2">
+                  {[
+                    { value: "all", label: "All posts", description: "Get notified about all new posts" },
+                    { value: "highlights", label: "Highlights", description: "Only important posts and mentions" },
+                    { value: "off", label: "Off", description: "No notifications from this group" },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        setNotificationSetting(option.value);
+                        toast.success(`Notifications set to: ${option.label}`);
+                        setShowNotificationSettings(false);
+                      }}
+                      className={`w-full p-4 rounded-lg text-left transition-colors ${
+                        notificationSetting === option.value
+                          ? "bg-primary/10 border-2 border-primary"
+                          : "bg-muted hover:bg-muted/80"
+                      }`}
+                    >
+                      <p className="font-medium">{option.label}</p>
+                      <p className="text-sm text-muted-foreground">{option.description}</p>
+                    </button>
+                  ))}
+                </div>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setShowNotificationSettings(false)}
+                >
+                  Cancel
+                </Button>
+              </motion.div>
+            </div>
+          )}
+
+          {/* Group Status Modal */}
+          {showGroupStatus && (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="bg-background rounded-lg p-6 max-w-md w-full space-y-4"
+              >
+                <h3 className="text-lg font-bold">Group Status</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="h-3 w-3 rounded-full bg-green-500" />
+                      <span>Active</span>
+                    </div>
+                    <Badge variant="default">Current</Badge>
+                  </div>
+                  <div className="space-y-2 text-sm text-muted-foreground">
+                    <p className="flex items-center gap-2">
+                      <Users className="h-4 w-4" />
+                      {group.member_count || 0} members
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      {group.post_count || 0} posts
+                    </p>
+                    <p className="flex items-center gap-2">
+                      {isPrivate ? <Lock className="h-4 w-4" /> : <Globe className="h-4 w-4" />}
+                      {isPrivate ? "Private" : "Public"} group
+                    </p>
+                    <p className="flex items-center gap-2">
+                      {isHidden ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {isHidden ? "Hidden" : "Visible"} to everyone
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setShowGroupStatus(false)}
+                >
+                  Close
+                </Button>
               </motion.div>
             </div>
           )}
