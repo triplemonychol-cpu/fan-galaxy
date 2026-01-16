@@ -178,6 +178,7 @@ export type Database = {
       }
       groups: {
         Row: {
+          allow_anonymous: boolean | null
           banner_url: string | null
           category_id: string
           created_at: string
@@ -185,13 +186,20 @@ export type Database = {
           description: string | null
           icon_url: string | null
           id: string
+          is_hidden: boolean | null
+          is_private: boolean | null
           member_count: number | null
           name: string
           post_count: number | null
+          require_edit_approval: boolean | null
+          require_post_approval: boolean | null
           slug: string
+          tags: string[] | null
+          theme_color: string | null
           updated_at: string
         }
         Insert: {
+          allow_anonymous?: boolean | null
           banner_url?: string | null
           category_id: string
           created_at?: string
@@ -199,13 +207,20 @@ export type Database = {
           description?: string | null
           icon_url?: string | null
           id?: string
+          is_hidden?: boolean | null
+          is_private?: boolean | null
           member_count?: number | null
           name: string
           post_count?: number | null
+          require_edit_approval?: boolean | null
+          require_post_approval?: boolean | null
           slug: string
+          tags?: string[] | null
+          theme_color?: string | null
           updated_at?: string
         }
         Update: {
+          allow_anonymous?: boolean | null
           banner_url?: string | null
           category_id?: string
           created_at?: string
@@ -213,10 +228,16 @@ export type Database = {
           description?: string | null
           icon_url?: string | null
           id?: string
+          is_hidden?: boolean | null
+          is_private?: boolean | null
           member_count?: number | null
           name?: string
           post_count?: number | null
+          require_edit_approval?: boolean | null
+          require_post_approval?: boolean | null
           slug?: string
+          tags?: string[] | null
+          theme_color?: string | null
           updated_at?: string
         }
         Relationships: [

@@ -11,6 +11,7 @@ import Auth from "./pages/Auth";
 import Category from "./pages/Category";
 import Group from "./pages/Group";
 import GroupSettings from "./pages/GroupSettings";
+import GroupDeepSettings from "./pages/GroupDeepSettings";
 import CreatePost from "./pages/CreatePost";
 import CreateGroup from "./pages/CreateGroup";
 import Post from "./pages/Post";
@@ -38,6 +39,7 @@ const App = () => (
                   <Route path="/category/:slug" element={<Category />} />
                   <Route path="/group/:slug" element={<Group />} />
                   <Route path="/group/:slug/settings" element={<GroupSettings />} />
+                  <Route path="/group/:slug/deep-settings" element={<GroupDeepSettings />} />
                   <Route path="/group/:groupSlug/create-post" element={<CreatePost />} />
                   <Route path="/create-group" element={<CreateGroup />} />
                   <Route path="/post/:postId" element={<Post />} />

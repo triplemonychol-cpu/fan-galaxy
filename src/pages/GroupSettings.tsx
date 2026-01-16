@@ -157,7 +157,7 @@ export default function GroupSettings() {
     {
       icon: Settings,
       label: "Settings",
-      onClick: () => {},
+      onClick: () => navigate(`/group/${slug}/deep-settings`),
       showIf: isCreator,
     },
     {
