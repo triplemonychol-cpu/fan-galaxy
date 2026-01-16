@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Users, MessageSquare, Plus, UserPlus, UserMinus } from "lucide-react";
+import { Users, MessageSquare, Plus, UserPlus, UserMinus, Settings } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -177,7 +177,7 @@ export default function Group() {
             </div>
           </div>
           <p className="text-lg opacity-90 mb-6">{group.description}</p>
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
             {user ? (
               isMember ? (
                 <>
@@ -201,22 +201,59 @@ export default function Group() {
                     <UserMinus className="mr-2 h-4 w-4" />
                     Leave
                   </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                    asChild
+                  >
+                    <Link to={`/group/${group.slug}/settings`}>
+                      <Settings className="mr-2 h-4 w-4" />
+                      Info
+                    </Link>
+                  </Button>
                 </>
               ) : (
-                <Button
-                  size="lg"
-                  className="bg-white text-primary hover:bg-white/90"
-                  onClick={() => joinMutation.mutate()}
-                  disabled={joinMutation.isPending}
-                >
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  Join Community
-                </Button>
+                <>
+                  <Button
+                    size="lg"
+                    className="bg-white text-primary hover:bg-white/90"
+                    onClick={() => joinMutation.mutate()}
+                    disabled={joinMutation.isPending}
+                  >
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Join Community
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                    asChild
+                  >
+                    <Link to={`/group/${group.slug}/settings`}>
+                      <Settings className="mr-2 h-4 w-4" />
+                      Info
+                    </Link>
+                  </Button>
+                </>
               )
             ) : (
-              <Button size="lg" className="bg-white text-primary hover:bg-white/90" asChild>
-                <Link to="/auth">Sign In to Join</Link>
-              </Button>
+              <>
+                <Button size="lg" className="bg-white text-primary hover:bg-white/90" asChild>
+                  <Link to="/auth">Sign In to Join</Link>
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                  asChild
+                >
+                  <Link to={`/group/${group.slug}/settings`}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Info
+                  </Link>
+                </Button>
+              </>
             )}
           </div>
         </motion.div>
