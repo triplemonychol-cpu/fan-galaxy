@@ -12,6 +12,10 @@ import Category from "./pages/Category";
 import Group from "./pages/Group";
 import GroupSettings from "./pages/GroupSettings";
 import GroupDeepSettings from "./pages/GroupDeepSettings";
+import GroupMembers from "./pages/GroupMembers";
+import GroupActivity from "./pages/GroupActivity";
+import GroupPhotos from "./pages/GroupPhotos";
+import GroupHistory from "./pages/GroupHistory";
 import CreatePost from "./pages/CreatePost";
 import CreateGroup from "./pages/CreateGroup";
 import Post from "./pages/Post";
@@ -40,6 +44,10 @@ const App = () => (
                   <Route path="/group/:slug" element={<Group />} />
                   <Route path="/group/:slug/settings" element={<GroupSettings />} />
                   <Route path="/group/:slug/deep-settings" element={<GroupDeepSettings />} />
+                  <Route path="/group/:slug/members" element={<GroupMembers />} />
+                  <Route path="/group/:slug/activity" element={<GroupActivity />} />
+                  <Route path="/group/:slug/photos" element={<GroupPhotos />} />
+                  <Route path="/group/:slug/history" element={<GroupHistory />} />
                   <Route path="/group/:groupSlug/create-post" element={<CreatePost />} />
                   <Route path="/create-group" element={<CreateGroup />} />
                   <Route path="/post/:postId" element={<Post />} />
