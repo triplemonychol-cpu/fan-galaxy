@@ -13,17 +13,21 @@ import {
   UserMinus,
   Shield,
   Crown,
+  User,
 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+
+const MAX_ADMINS = 3;
 
 export default function GroupMembers() {
   const { slug } = useParams();
@@ -63,7 +67,23 @@ export default function GroupMembers() {
     enabled: !!group?.id,
   });
 
+  // Role checks
   const isCreator = user?.id === group?.created_by;
+  
+  const currentUserMember = useMemo(() => 
+    members?.find(m => (m.public_profiles as any)?.id === user?.id),
+    [members, user?.id]
+  );
+  
+  const isAdmin = currentUserMember?.role === "admin";
+  const isModerator = currentUserMember?.role === "moderator";
+  const canManageRoles = isCreator || isAdmin;
+
+  // Count current admins
+  const adminCount = useMemo(() => 
+    members?.filter(m => m.role === "admin").length || 0,
+    [members]
+  );
 
   const removeMemberMutation = useMutation({
     mutationFn: async (memberId: string) => {
@@ -99,11 +119,42 @@ export default function GroupMembers() {
     },
   });
 
+  const handleMakeAdmin = (memberId: string) => {
+    if (adminCount >= MAX_ADMINS) {
+      toast.error(`Maximum of ${MAX_ADMINS} admins allowed`);
+      return;
+    }
+    updateRoleMutation.mutate({ memberId, role: "admin" });
+  };
+
   const filteredMembers = members?.filter((member) => {
     const profile = member.public_profiles as any;
     const name = profile?.display_name || profile?.username || "";
     return name.toLowerCase().includes(searchQuery.toLowerCase());
   });
+
+  // Sort members: creator first, then admins, then moderators, then members
+  const sortedMembers = useMemo(() => {
+    if (!filteredMembers || !group) return [];
+    return [...filteredMembers].sort((a, b) => {
+      const aProfile = a.public_profiles as any;
+      const bProfile = b.public_profiles as any;
+      
+      // Creator always first
+      if (aProfile?.id === group.created_by) return -1;
+      if (bProfile?.id === group.created_by) return 1;
+      
+      // Then admins
+      if (a.role === "admin" && b.role !== "admin") return -1;
+      if (b.role === "admin" && a.role !== "admin") return 1;
+      
+      // Then moderators
+      if (a.role === "moderator" && b.role !== "moderator") return -1;
+      if (b.role === "moderator" && a.role !== "moderator") return 1;
+      
+      return 0;
+    });
+  }, [filteredMembers, group]);
 
   const isLoading = groupLoading || membersLoading;
 
@@ -142,6 +193,49 @@ export default function GroupMembers() {
     return null;
   };
 
+  const canManageMember = (memberRole: string | null, memberUserId: string) => {
+    // Creator can manage anyone except themselves
+    if (isCreator && memberUserId !== user?.id) return true;
+    
+    // Admins can manage moderators and regular members (not other admins or creator)
+    if (isAdmin && memberUserId !== user?.id) {
+      if (memberUserId === group.created_by) return false;
+      if (memberRole === "admin") return false;
+      return true;
+    }
+    
+    return false;
+  };
+
+  const canPromoteToAdmin = (memberRole: string | null) => {
+    // Only creator can promote to admin
+    if (!isCreator) return false;
+    if (adminCount >= MAX_ADMINS) return false;
+    if (memberRole === "admin") return false;
+    return true;
+  };
+
+  const canPromoteToModerator = (memberRole: string | null, memberUserId: string) => {
+    // Creator and admins can promote to moderator
+    if (!canManageRoles) return false;
+    if (memberUserId === group.created_by) return false;
+    if (memberRole === "moderator") return false;
+    return true;
+  };
+
+  const canRemoveRole = (memberRole: string | null, memberUserId: string) => {
+    if (memberUserId === group.created_by) return false;
+    if (!memberRole || memberRole === "member") return false;
+    
+    // Creator can remove any role
+    if (isCreator) return true;
+    
+    // Admins can only remove moderator role
+    if (isAdmin && memberRole === "moderator") return true;
+    
+    return false;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -155,7 +249,12 @@ export default function GroupMembers() {
           >
             <ArrowLeft className="h-6 w-6" />
           </Button>
-          <h1 className="text-xl font-bold">Members ({members?.length || 0})</h1>
+          <div>
+            <h1 className="text-xl font-bold">Members ({members?.length || 0})</h1>
+            <p className="text-sm text-primary-foreground/70">
+              {adminCount}/{MAX_ADMINS} admins
+            </p>
+          </div>
         </div>
       </div>
 
@@ -171,10 +270,34 @@ export default function GroupMembers() {
           />
         </div>
 
+        {/* Role Legend */}
+        {canManageRoles && (
+          <div className="mb-4 p-3 bg-muted rounded-lg text-sm">
+            <p className="font-medium mb-2">Role Permissions:</p>
+            <ul className="space-y-1 text-muted-foreground">
+              <li className="flex items-center gap-2">
+                <Badge className="bg-amber-500 text-white text-xs">Creator</Badge>
+                <span>Full control, can add up to {MAX_ADMINS} admins</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Badge variant="default" className="text-xs">Admin</Badge>
+                <span>Can manage moderators & members</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Badge variant="secondary" className="text-xs">Moderator</Badge>
+                <span>Can moderate content</span>
+              </li>
+            </ul>
+          </div>
+        )}
+
         {/* Members List */}
         <div className="space-y-2">
-          {filteredMembers?.map((member, index) => {
+          {sortedMembers?.map((member, index) => {
             const profile = member.public_profiles as any;
+            const memberUserId = profile?.id;
+            const memberRole = member.role;
+            
             return (
               <motion.div
                 key={member.id}
@@ -200,10 +323,10 @@ export default function GroupMembers() {
                       </p>
                     )}
                   </div>
-                  {getRoleBadge(member.role, profile?.id)}
+                  {getRoleBadge(memberRole, memberUserId)}
                 </div>
 
-                {isCreator && profile?.id !== user?.id && (
+                {canManageMember(memberRole, memberUserId) && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">
@@ -211,38 +334,46 @@ export default function GroupMembers() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={() =>
-                          updateRoleMutation.mutate({
-                            memberId: member.id,
-                            role: "admin",
-                          })
-                        }
-                      >
-                        <Crown className="h-4 w-4 mr-2" />
-                        Make Admin
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() =>
-                          updateRoleMutation.mutate({
-                            memberId: member.id,
-                            role: "moderator",
-                          })
-                        }
-                      >
-                        <Shield className="h-4 w-4 mr-2" />
-                        Make Moderator
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() =>
-                          updateRoleMutation.mutate({
-                            memberId: member.id,
-                            role: "member",
-                          })
-                        }
-                      >
-                        Remove Role
-                      </DropdownMenuItem>
+                      {canPromoteToAdmin(memberRole) && (
+                        <DropdownMenuItem
+                          onClick={() => handleMakeAdmin(member.id)}
+                        >
+                          <Crown className="h-4 w-4 mr-2" />
+                          Make Admin
+                          {adminCount >= MAX_ADMINS - 1 && (
+                            <span className="ml-2 text-xs text-muted-foreground">
+                              ({MAX_ADMINS - adminCount} slot left)
+                            </span>
+                          )}
+                        </DropdownMenuItem>
+                      )}
+                      {canPromoteToModerator(memberRole, memberUserId) && memberRole !== "admin" && (
+                        <DropdownMenuItem
+                          onClick={() =>
+                            updateRoleMutation.mutate({
+                              memberId: member.id,
+                              role: "moderator",
+                            })
+                          }
+                        >
+                          <Shield className="h-4 w-4 mr-2" />
+                          Make Moderator
+                        </DropdownMenuItem>
+                      )}
+                      {canRemoveRole(memberRole, memberUserId) && (
+                        <DropdownMenuItem
+                          onClick={() =>
+                            updateRoleMutation.mutate({
+                              memberId: member.id,
+                              role: "member",
+                            })
+                          }
+                        >
+                          <User className="h-4 w-4 mr-2" />
+                          Remove Role
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem
                         className="text-destructive"
                         onClick={() => removeMemberMutation.mutate(member.id)}
@@ -257,7 +388,7 @@ export default function GroupMembers() {
             );
           })}
 
-          {filteredMembers?.length === 0 && (
+          {sortedMembers?.length === 0 && (
             <p className="text-center text-muted-foreground py-8">
               No members found
             </p>
