@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Flame, Laugh, Sparkles } from "lucide-react";
+import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,15 +27,19 @@ export function ReactionPicker({ postId, commentId, size = "md" }: ReactionPicke
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const queryKey = postId 
-    ? ["reactions", "post", postId] 
-    : ["reactions", "comment", commentId];
+  // Query keys for cache invalidation
+  const countsQueryKey = postId 
+    ? ["reaction_counts", "post", postId] 
+    : ["reaction_counts", "comment", commentId];
+  
+  const userReactionQueryKey = ["user_reaction", postId || commentId, user?.id];
 
-  const { data: reactions = [] } = useQuery({
-    queryKey,
+  // Query aggregate reaction counts (from public view - no user_id exposed)
+  const { data: reactionCountsData = [] } = useQuery({
+    queryKey: countsQueryKey,
     queryFn: async () => {
       const query = supabase
-        .from("reactions")
+        .from("reaction_counts")
         .select("*");
       
       if (postId) {
@@ -46,11 +50,32 @@ export function ReactionPicker({ postId, commentId, size = "md" }: ReactionPicke
       
       const { data, error } = await query;
       if (error) throw error;
-      return data;
+      return data || [];
     },
   });
 
-  const userReaction = reactions.find(r => r.user_id === user?.id);
+  // Query user's own reaction (restricted by RLS - only sees their own)
+  const { data: userReaction } = useQuery({
+    queryKey: userReactionQueryKey,
+    queryFn: async () => {
+      if (!user) return null;
+      
+      const query = supabase
+        .from("reactions")
+        .select("*");
+      
+      if (postId) {
+        query.eq("post_id", postId);
+      } else if (commentId) {
+        query.eq("comment_id", commentId);
+      }
+      
+      const { data, error } = await query.maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
 
   const reactionMutation = useMutation({
     mutationFn: async (reactionType: string) => {
@@ -87,7 +112,8 @@ export function ReactionPicker({ postId, commentId, size = "md" }: ReactionPicke
       return reactionType;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey });
+      queryClient.invalidateQueries({ queryKey: countsQueryKey });
+      queryClient.invalidateQueries({ queryKey: userReactionQueryKey });
       setShowPicker(false);
     },
     onError: () => {
@@ -95,14 +121,23 @@ export function ReactionPicker({ postId, commentId, size = "md" }: ReactionPicke
     },
   });
 
-  // Group reactions by type
-  const reactionCounts = REACTIONS.reduce((acc, r) => {
-    acc[r.type] = reactions.filter(reaction => reaction.reaction_type === r.type).length;
+  // Build reaction counts map from aggregate data
+  const reactionCountsMap = REACTIONS.reduce((acc, r) => {
+    const countData = reactionCountsData.find(
+      (rc: { reaction_type: string; count: number }) => rc.reaction_type === r.type
+    );
+    acc[r.type] = countData ? Number(countData.count) : 0;
     return acc;
   }, {} as Record<string, number>);
 
-  const totalReactions = reactions.length;
-  const displayReactions = REACTIONS.filter(r => reactionCounts[r.type] > 0);
+  // Calculate total reactions
+  const totalReactions = reactionCountsData.reduce(
+    (sum: number, rc: { count: number }) => sum + Number(rc.count), 
+    0
+  );
+  
+  // Get reactions that have counts > 0 for display
+  const displayReactions = REACTIONS.filter(r => reactionCountsMap[r.type] > 0);
 
   return (
     <div className="relative inline-flex items-center gap-2">
