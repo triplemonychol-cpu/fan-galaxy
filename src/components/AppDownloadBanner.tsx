@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Download, X, Smartphone } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const APK_DOWNLOAD_URL = "https://github.com/YOUR_USERNAME/YOUR_REPO/releases/latest/download/app-debug.apk";
+const APK_DOWNLOAD_URL = "https://storage.googleapis.com/codemagic-build-artifacts/bca0486b-279d-482a-8882-691c06d2d297/46499451-ec2e-4cf4-b321-ddfa320f216d/app-debug.apk?Expires=1768731758&GoogleAccessId=secure-uploader%40woven-voyage-217607.iam.gserviceaccount.com&Signature=bBR3C5XIkhEHPAj4EVB1ZPbowWba83f40OKZilLI%2BI2nwfXVV%2Bstf26zdO3RqtzB2ewzCnj2%2Br6RqaecfSxzKZCPJbyo8lIllhEZKGyQ52ihlp9nHa9CRcMBbOKRe4u1zb7vX4xBK6RWCU38f3QqE5wWDsDREt%2FX6PCRkLXye2nsqJK1nChf27E43rISPkz13uZE9Q6BgIGZz3FqX8qEiCSEc4BG719JjX2yur%2FGcDhV9f8O8bxppdus0YdoiBySoio3XzgLdNBjOHDdSKcD9TdrpkxDRWf66an4GoTKWMouQFEVKt65L0zO0u7SEMbw3Eaflziqsd3%2BzukTlg5GUg%3D%3D";
 
 export function AppDownloadBanner() {
   const [isVisible, setIsVisible] = useState(false);
