@@ -117,9 +117,15 @@ export default function Category() {
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div className="flex gap-4">
-                          {group.icon_url && (
+                          {group.icon_url ? (
+                            <img 
+                              src={group.icon_url} 
+                              alt={group.name}
+                              className="w-16 h-16 rounded-lg object-cover"
+                            />
+                          ) : (
                             <div className="w-16 h-16 rounded-lg bg-muted flex items-center justify-center text-2xl">
-                              {group.icon_url}
+                              {category.icon}
                             </div>
                           )}
                           <div>
