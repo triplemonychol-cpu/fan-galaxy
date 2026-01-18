@@ -90,6 +90,7 @@ export function PollCreator({ onPollChange }: PollCreatorProps) {
                     setQuestion(e.target.value);
                     updatePoll(e.target.value, options);
                   }}
+                  maxLength={500}
                   className="mt-1.5"
                 />
               </div>
@@ -110,6 +111,7 @@ export function PollCreator({ onPollChange }: PollCreatorProps) {
                       placeholder={`Option ${index + 1}`}
                       value={option}
                       onChange={(e) => updateOption(index, e.target.value)}
+                      maxLength={200}
                       className="flex-1"
                     />
                     {options.length > 2 && (
