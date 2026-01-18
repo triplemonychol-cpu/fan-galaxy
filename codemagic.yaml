@@ -6,12 +6,6 @@ workflows:
     environment:
       node: 22
       java: 17
-      android_signing:
-        - keystore_reference: none
-      groups:
-        - android_sdk
-      vars:
-        ANDROID_SDK_ROOT: /usr/local/share/android-commandlinetools
     scripts:
       - name: Install dependencies
         script: npm ci
@@ -22,7 +16,7 @@ workflows:
       - name: Setup Capacitor Android
         script: |
           rm -rf android
-          npx cap add android --verbose
+          npx cap add android
       - name: Sync Capacitor
         script: npx cap sync android
       - name: Build APK
