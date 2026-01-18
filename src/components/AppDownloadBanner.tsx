@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 // Get the APK URL from Supabase Storage
 const getApkUrl = () => {
-  const { data } = supabase.storage.from("app-downloads").getPublicUrl("fanhub-app.apk");
+  const { data } = supabase.storage.from("app-downloads").getPublicUrl("app-debug.apk");
   return data.publicUrl;
 };
 
