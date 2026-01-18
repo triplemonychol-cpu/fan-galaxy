@@ -8,6 +8,7 @@ import { Users, MessageSquare, TrendingUp, Flame } from "lucide-react";
 import { motion } from "framer-motion";
 import { TrendingPosts } from "@/components/TrendingPosts";
 import { SEO } from "@/components/SEO";
+import { AppDownloadBanner } from "@/components/AppDownloadBanner";
 import heroBackground from "@/assets/hero-background.jpg";
 
 export default function Home() {
@@ -42,6 +43,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
+      <AppDownloadBanner />
       <SEO 
         title="Home"
         description="Join FanHub, the global community platform for fans of anime, movies, games, comics, and more. Connect with passionate fans worldwide."
