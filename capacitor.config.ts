@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.812b6767f379483ab5494ebfde313899',
+  appId: 'com.fanhub.app',
   appName: 'FanHub',
   webDir: 'dist',
   server: {
