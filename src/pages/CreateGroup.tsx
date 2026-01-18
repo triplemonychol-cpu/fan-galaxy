@@ -163,7 +163,7 @@ export default function CreateGroup() {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="What is this community about?"
                 rows={4}
-                maxLength={500}
+                maxLength={2000}
               />
             </div>
 

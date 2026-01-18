@@ -136,6 +136,7 @@ export function ReportDialog({ postId, commentId, userId, trigger }: ReportDialo
               placeholder="Provide any additional context..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              maxLength={2000}
               rows={3}
             />
           </div>
