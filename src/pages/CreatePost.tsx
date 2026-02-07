@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
-import { Image, X } from "lucide-react";
+import { Image, X, Video } from "lucide-react";
 import { PollCreator } from "@/components/PollCreator";
 import { CharacterCount } from "@/components/CharacterCount";
 
@@ -26,6 +26,8 @@ export default function CreatePost() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [pollData, setPollData] = useState<{ question: string; options: string[] } | null>(null);
 
   const { data: group } = useQuery({
@@ -50,6 +52,18 @@ export default function CreatePost() {
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 100 * 1024 * 1024) {
+        toast.error("Video must be under 100MB");
+        return;
+      }
+      setVideoFile(file);
+      setVideoPreview(URL.createObjectURL(file));
     }
   };
 
@@ -81,6 +95,27 @@ export default function CreatePost() {
         setUploading(false);
       }
 
+      let videoUrl = null;
+
+      if (videoFile) {
+        setUploading(true);
+        const fileExt = videoFile.name.split(".").pop();
+        const filePath = `${user.id}/videos/${Math.random()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("uploads")
+          .upload(filePath, videoFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from("uploads")
+          .getPublicUrl(filePath);
+
+        videoUrl = publicUrl;
+        setUploading(false);
+      }
+
       const { data, error } = await supabase
         .from("posts")
         .insert({
@@ -89,6 +124,7 @@ export default function CreatePost() {
           title: title.trim(),
           content: content.trim(),
           image_url: imageUrl,
+          video_url: videoUrl,
         })
         .select()
         .single();
@@ -223,6 +259,47 @@ export default function CreatePost() {
                     <Image className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
                     <p className="text-sm text-muted-foreground">
                       Click to upload an image
+                    </p>
+                  </Label>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="video">Video (optional)</Label>
+              {videoPreview ? (
+                <div className="relative">
+                  <video
+                    src={videoPreview}
+                    controls
+                    className="w-full max-h-96 rounded-lg"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-2 right-2"
+                    onClick={() => {
+                      setVideoFile(null);
+                      setVideoPreview(null);
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="border-2 border-dashed rounded-lg p-8 text-center">
+                  <Input
+                    id="video"
+                    type="file"
+                    accept="video/*"
+                    onChange={handleVideoChange}
+                    className="hidden"
+                  />
+                  <Label htmlFor="video" className="cursor-pointer">
+                    <Video className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">
+                      Click to upload a video (max 100MB)
                     </p>
                   </Label>
                 </div>

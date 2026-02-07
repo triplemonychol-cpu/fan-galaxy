@@ -1,0 +1,2 @@
+
+ALTER TABLE public.posts ADD COLUMN video_url text DEFAULT NULL;

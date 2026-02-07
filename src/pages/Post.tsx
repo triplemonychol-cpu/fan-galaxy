@@ -150,6 +150,15 @@ export default function Post() {
               />
             )}
 
+            {post.video_url && (
+              <video
+                src={post.video_url}
+                controls
+                className="rounded-lg w-full mb-6"
+                preload="metadata"
+              />
+            )}
+
             {/* Poll Display */}
             <PollDisplay postId={post.id} />
 
