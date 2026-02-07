@@ -23,11 +23,16 @@ export function UserLevel({ level, points, size = "md", showProgress = false }: 
   };
 
   const getLevelTitle = (level: number) => {
-    if (level >= 50) return "Legend";
+    if (level >= 100) return "Mythic";
+    if (level >= 75) return "Legend";
+    if (level >= 50) return "Master";
+    if (level >= 35) return "Champion";
     if (level >= 20) return "Super Fan";
+    if (level >= 15) return "Veteran";
     if (level >= 10) return "Rising Star";
     if (level >= 5) return "Contributor";
-    return "Newcomer";
+    if (level >= 3) return "Regular";
+    return "Rookie";
   };
 
   const sizeClasses = {
