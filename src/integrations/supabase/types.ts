@@ -431,6 +431,7 @@ export type Database = {
           like_count: number | null
           title: string
           updated_at: string
+          video_url: string | null
         }
         Insert: {
           author_id: string
@@ -443,6 +444,7 @@ export type Database = {
           like_count?: number | null
           title: string
           updated_at?: string
+          video_url?: string | null
         }
         Update: {
           author_id?: string
@@ -455,6 +457,7 @@ export type Database = {
           like_count?: number | null
           title?: string
           updated_at?: string
+          video_url?: string | null
         }
         Relationships: [
           {
