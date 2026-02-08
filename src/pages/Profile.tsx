@@ -3,19 +3,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
-import { Users, MessageSquare, Calendar, Award, Zap } from "lucide-react";
+import { Users, MessageSquare, Calendar, Award, Zap, BadgeCheck, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { UserLevel } from "@/components/UserLevel";
 import { BadgeDisplay } from "@/components/BadgeDisplay";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { SEO } from "@/components/SEO";
 import { ImageUpload } from "@/components/ImageUpload";
 import { toast } from "sonner";
+import { useState } from "react";
 
 export default function Profile() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const [verifyLoading, setVerifyLoading] = useState(false);
 
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ["profile", user?.id],
@@ -85,6 +89,22 @@ export default function Profile() {
     },
   });
 
+  const handleGetVerified = async () => {
+    setVerifyLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-verification-payment");
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      }
+    } catch (err) {
+      console.error("Payment error:", err);
+      toast.error("Failed to start payment. Please try again.");
+    } finally {
+      setVerifyLoading(false);
+    }
+  };
+
   if (!user) {
     return (
       <div className="container py-16 text-center">
@@ -125,6 +145,7 @@ export default function Profile() {
                 <CardTitle className="text-3xl">
                   {profile?.display_name || profile?.username}
                 </CardTitle>
+                {profile?.is_verified && <VerifiedBadge size="lg" />}
                 <UserLevel 
                   level={profile?.level || 1} 
                   points={profile?.points || 0} 
@@ -138,6 +159,22 @@ export default function Profile() {
                   <span className="font-medium">{profile?.points || 0}</span>
                   <span className="text-muted-foreground">points</span>
                 </div>
+                {!profile?.is_verified && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleGetVerified}
+                    disabled={verifyLoading}
+                    className="gap-1.5 border-blue-500/50 text-blue-500 hover:bg-blue-500/10"
+                  >
+                    {verifyLoading ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <BadgeCheck className="h-3.5 w-3.5" />
+                    )}
+                    Get Verified
+                  </Button>
+                )}
               </div>
               {profile?.bio && (
                 <p className="text-sm mb-4">{profile.bio}</p>
