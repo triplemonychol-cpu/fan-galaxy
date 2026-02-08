@@ -25,6 +25,7 @@ const Post = lazy(() => import("./pages/Post"));
 const Profile = lazy(() => import("./pages/Profile"));
 const CommunityGuidelines = lazy(() => import("./pages/CommunityGuidelines"));
 const Updates = lazy(() => import("./pages/Updates"));
+const VerificationSuccess = lazy(() => import("./pages/VerificationSuccess"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -65,6 +66,7 @@ const App = () => (
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/guidelines" element={<CommunityGuidelines />} />
                     <Route path="/updates" element={<Updates />} />
+                    <Route path="/verification-success" element={<VerificationSuccess />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </Suspense>
